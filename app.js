@@ -8,14 +8,7 @@ const productRoutes = require("./api/routes/products");
 const orderRoutes = require("./api/routes/orders");
 const userRoutes = require('./api/routes/user');
 
-mongoose.connect(
-  "mongodb://node-shop:" +
-    process.env.MONGO_ATLAS_PW +
-    "@node-rest-shop-shard-00-00-wovcj.mongodb.net:27017,node-rest-shop-shard-00-01-wovcj.mongodb.net:27017,node-rest-shop-shard-00-02-wovcj.mongodb.net:27017/test?ssl=true&replicaSet=node-rest-shop-shard-0&authSource=admin",
-  {
-    useMongoClient: true
-  }
-);
+mongoose.connect(process.env.MONGO_CONN_STRING, {useMongoClient: true});
 mongoose.Promise = global.Promise;
 
 app.use(morgan("dev"));
@@ -36,23 +29,23 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes which should handle requests
+// Main Routes
 app.use("/products", productRoutes);
 app.use("/orders", orderRoutes);
 app.use("/user", userRoutes);
 
+
+//If entered invalid routes
 app.use((req, res, next) => {
-  const error = new Error("Not found");
+  const error = new Error("Route Not found");
   error.status = 404;
   next(error);
 });
-
 app.use((error, req, res, next) => {
   res.status(error.status || 500);
   res.json({
-    error: {
-      message: error.message
-    }
+    status: "error",
+    message: error.message
   });
 });
 
