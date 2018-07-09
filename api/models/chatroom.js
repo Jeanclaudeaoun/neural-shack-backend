@@ -3,8 +3,6 @@ const mongoose = require('mongoose');
 
 module.exports = mongoose.model('Chatroom', mongoose.Schema({
 
-  _id: mongoose.Schema.Types.ObjectId,
-
   status: { type: String, default: "pending" }, // pending || inProgress || done
 
   creatorUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
