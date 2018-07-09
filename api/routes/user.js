@@ -41,15 +41,14 @@ router.post("/signup", (req, res, next) => {
             });
           } else {
             const user = new User({
-              _id: new mongoose.Types.ObjectId(),
               firstName: req.body.firstName,
               lastName: req.body.lastName,
               dateOfBirth: req.body.dateOfBirth,
               gender: req.body.gender,
               email: req.body.email,
               password: hash,
-              roles: req.body.roles,
-              skills: req.body.skills
+              roles: req.body.roles || [],
+              skills: req.body.skills || []
             });
             user
               .save()
@@ -81,58 +80,66 @@ router.post("/login", (req, res, next) => {
     .then(user => {
       if (user.length < 1) {
         return res.status(401).json({
-          message: "Auth failed"
+          status: "error",
+          message: "Invalid email or password!"
         });
       }
       bcrypt.compare(req.body.password, user[0].password, (err, result) => {
         if (err) {
           return res.status(401).json({
-            message: "Auth failed"
+            status: "error",
+            message: "Invalid email or password!"
           });
         }
         if (result) {
           const token = jwt.sign(
             {
+              firstName: user[0].firstName,
+              lastName: user[0].lastName,
               email: user[0].email,
               userId: user[0]._id
             },
             process.env.JWT_KEY,
             {
-                expiresIn: "1h"
+                expiresIn: "6h"
             }
           );
           return res.status(200).json({
-            message: "Auth successful",
+            status: "success",
+            message: "Authentication successful",
             token: token
           });
+        }else{
+          res.status(401).json({
+            status: "error",
+            message: "Invalid email or password!"
+          });
         }
-        res.status(401).json({
-          message: "Auth failed"
-        });
       });
     })
     .catch(err => {
       console.log(err);
       res.status(500).json({
-        error: err
+        status: "error",
+        message: err
       });
     });
 });
 
-router.delete("/:userId", (req, res, next) => {
-  User.remove({ _id: req.params.userId })
-    .exec()
-    .then(result => {
-      res.status(200).json({
-        message: "User deleted"
-      });
-    })
-    .catch(err => {
-      console.log(err);
-      res.status(500).json({
-        error: err
-      });
-    });
-});
+// router.delete("/dall", (req, res, next) => {
+//   User.remove({})
+//     .exec()
+//     .then(result => {
+//       res.status(200).json({
+//         message: "User deleted"
+//       });
+//     })
+//     .catch(err => {
+//       console.log(err);
+//       res.status(500).json({
+//         error: err
+//       });
+//     });
+// });
 
 module.exports = router;
