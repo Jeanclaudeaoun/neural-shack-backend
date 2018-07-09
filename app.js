@@ -27,10 +27,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// Main Routes
-//app.use("/products", productRoutes);
-//app.use("/orders", orderRoutes);
-app.use("/user", userRoutes);
+//   --------------   Main Routes   --------------------
+
+app.use("/api/v1/user", userRoutes);
 
 
 //If entered invalid routes
