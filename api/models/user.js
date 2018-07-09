@@ -4,13 +4,11 @@ module.exports = mongoose.model('User', mongoose.Schema({
 
   _id: mongoose.Schema.Types.ObjectId,
 
-  username: { type: String, required: true, lowercase: true, unique: true},
-
   firstName: { type: String, required: true },
 
   lastName: { type: String, required: true },
 
-  dateOfBirth: { type: Date, required: true },
+  dateOfBirth: { type: String, required: true },
 
   gender: String,
 
@@ -32,7 +30,9 @@ module.exports = mongoose.model('User', mongoose.Schema({
 
   skills: [String],
 
-  rating: { type: Number, min: 0, max: 5 }
+  rating: { type: Number, min: 0, max: 5, default: 0 },
+
+  nbOfRatings: { type: Number, default:0 }
 
 
 }));

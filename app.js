@@ -4,8 +4,6 @@ const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 
-const productRoutes = require("./api/routes/products");
-const orderRoutes = require("./api/routes/orders");
 const userRoutes = require('./api/routes/user');
 
 mongoose.connect(process.env.MONGO_CONN_STRING, {useMongoClient: true});
@@ -30,8 +28,8 @@ app.use((req, res, next) => {
 });
 
 // Main Routes
-app.use("/products", productRoutes);
-app.use("/orders", orderRoutes);
+//app.use("/products", productRoutes);
+//app.use("/orders", orderRoutes);
 app.use("/user", userRoutes);
 
 
