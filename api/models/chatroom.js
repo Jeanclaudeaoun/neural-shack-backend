@@ -13,6 +13,8 @@ module.exports = mongoose.model('Chatroom', mongoose.Schema({
 
   skillsNeeded: [String],
 
+  currentContributerUser: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null},
+
   contributorsIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
 
   messages: [{
