@@ -9,15 +9,15 @@ module.exports = mongoose.model('Chatroom', mongoose.Schema({
 
   subject: { type: String, required: true},
 
-  roleNeededId: { type: mongoose.Schema.Types.ObjectId, ref: 'Role', required: true },
+  roleNeeded: { type: String, required: true },
 
   skillsNeeded: [String],
 
-  contributorsIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }],
+  contributorsIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
 
   messages: [{
-    date: { type: Date, required:true },
-    senderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    date: { type: Date },
+    senderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     body: String
   }]
 

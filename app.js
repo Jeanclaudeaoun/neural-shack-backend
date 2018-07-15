@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 
 const userRoutes = require('./api/routes/user');
+const chatroomRoutes = require('./api/routes/chatroom');
 
 mongoose.connect(process.env.MONGO_CONN_STRING, {useMongoClient: true});
 mongoose.Promise = global.Promise;
@@ -30,6 +31,7 @@ app.use((req, res, next) => {
 //   --------------   Main Routes   --------------------
 
 app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/chatroom", chatroomRoutes);
 
 
 //If entered invalid routes
