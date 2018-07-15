@@ -1,11 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+const checkAuth = require("../middleware/check-auth")
 
 
 const Chatroom = require("../models/chatroom");
+const User = require("../models/user");
 
-router.get("/",(req,res,next)=>{
+router.get("/",checkAuth,(req,res,next)=>{
   var query;
   if(req.query.status){
     query = Chatroom.find({status: req.query.status});
@@ -13,6 +15,8 @@ router.get("/",(req,res,next)=>{
     query = Chatroom.find();
   }
   query
+  .select("_id creatorUserId subject roleNeeded skillsNeeded status")
+  .populate("creatorUserId","firstName lastName email rating")
   .exec()
   .then(docs => {
     res.status(200).json({
@@ -28,9 +32,9 @@ router.get("/",(req,res,next)=>{
   })
 });
 
-router.post("/",(req,res,next)=>{
+router.post("/",checkAuth,(req,res,next)=>{
   const chatroom = new Chatroom({
-    creatorUserId: req.body.creatorUserId,
+    creatorUserId: req.userData.userId,
     subject: req.body.subject,
     roleNeeded: req.body.roleNeeded,
     skillsNeeded: req.body.skillsNeeded || [],
