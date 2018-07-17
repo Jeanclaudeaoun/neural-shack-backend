@@ -6,9 +6,11 @@ module.exports = (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_KEY);
         req.userData = decoded;
         next();
-    } catch (error) {
+    } catch (err) {
         return res.status(401).json({
-            message: 'Auth failed'
+            status: "error",
+            message: 'Auth failed',
+            error: err
         });
     }
 };
