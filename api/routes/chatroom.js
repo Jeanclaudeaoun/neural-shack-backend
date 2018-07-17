@@ -7,6 +7,45 @@ const checkAuth = require("../middleware/check-auth")
 const Chatroom = require("../models/chatroom");
 const User = require("../models/user");
 
+const inArray = (str,arr) => {
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i].toString() === str)
+      return true;
+  }
+  return false;
+}
+
+router.get("/:cid",checkAuth,(req,res,next)=>{
+  Chatroom.findOne({_id: req.params.cid})
+  .exec()
+  .then(result => {
+    if((result.creatorUserId.toString() === req.userData.userId.toString()) || inArray(req.userData.userId.toString(),result.contributorsIds)){
+      res.status(200).json({
+        status: "success",
+        message: result
+      })
+    }else{
+      res.status(500).json({
+        status: "error",
+        message: "Unauthorized to view"
+      });
+    }
+
+
+  })
+  .catch( err => {
+    res.status(500).json({
+      status: "error",
+      message: err
+    });
+  })
+/*
+TO-DO:
+  “?onlymsgs=true” gets only the messages of chatroom
+  “latest=date” get messages with date > latest
+*/
+});
+
 router.get("/",checkAuth,(req,res,next)=>{
   var query;
   if(req.query.status){
