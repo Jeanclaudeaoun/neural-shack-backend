@@ -7,19 +7,22 @@ const checkAuth = require("../middleware/check-auth")
 const Chatroom = require("../models/chatroom");
 const User = require("../models/user");
 
-const inArray = (str,arr) => {
-  for (var i = 0; i < arr.length; i++) {
-    if (arr[i].toString() === str)
-      return true;
-  }
-  return false;
-}
 
 router.get("/:cid",checkAuth,(req,res,next)=>{
-  Chatroom.findOne({_id: req.params.cid})
-  .exec()
+  var query = Chatroom.findOne({_id: req.params.cid});
+
+  if(req.query.onlymsgs){ // if ?onlymsgs is available in the url
+    if(req.query.onlymsgs.toString() === "true"){
+      query.select("_id creatorUserId currentContributerUser messages")
+      if (req.query.latest){
+        query.where('messages.date').gt( parseInt(req.query.latest) ) 
+      }
+    }
+  }
+
+  query.exec()
   .then(result => {
-    if((result.creatorUserId.toString() === req.userData.userId.toString()) || inArray(req.userData.userId.toString(),result.contributorsIds)){
+    if((result.creatorUserId.toString() === req.userData.userId.toString()) || (result.currentContributerUser.toString() === req.userData.userId.toString())){
       res.status(200).json({
         status: "success",
         message: result
@@ -30,8 +33,6 @@ router.get("/:cid",checkAuth,(req,res,next)=>{
         message: "Unauthorized to view"
       });
     }
-
-
   })
   .catch( err => {
     res.status(500).json({
@@ -39,17 +40,12 @@ router.get("/:cid",checkAuth,(req,res,next)=>{
       message: err
     });
   })
-/*
-TO-DO:
-  “?onlymsgs=true” gets only the messages of chatroom
-  “latest=date” get messages with date > latest
-*/
 });
 
 router.get("/",checkAuth,(req,res,next)=>{
   var query;
   if(req.query.status){
-    query = Chatroom.find({status: req.query.status});
+    query = Chatroom.find({status: req.query.status.toString().toLowerCase()});
   }else{
     query = Chatroom.find();
   }

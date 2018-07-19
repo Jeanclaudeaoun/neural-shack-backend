@@ -18,7 +18,7 @@ module.exports = mongoose.model('Chatroom', mongoose.Schema({
   contributorsIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
 
   messages: [{
-    date: { type: Date },
+    date: { type: Number }, // number of seconds
     senderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     body: String
   }]
