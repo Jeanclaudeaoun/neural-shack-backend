@@ -19,7 +19,7 @@ router.get("/",(req,res,next)=>{
       console.log(err);
       res.status(500).json({
         status: "error",
-        message: err
+        message: err.toString()
       });
     })
 });
@@ -37,7 +37,7 @@ router.post("/signup", (req, res, next) => {
           if (err) {
             return res.status(500).json({
               status: "error",
-              message: err
+              message: err.toString()
             });
           } else {
             const user = new User({
@@ -63,7 +63,7 @@ router.post("/signup", (req, res, next) => {
                 console.log(err);
                 res.status(500).json({
                   status: "error",
-                  message: err
+                  message: err.toString()
                 });
               });
           }
@@ -121,7 +121,7 @@ router.post("/login", (req, res, next) => {
       console.log(err);
       res.status(500).json({
         status: "error",
-        message: err
+        message: err.toString()
       });
     });
 });
