@@ -69,12 +69,12 @@ router.get("/getmsgs/:cid",checkAuth,(req,res,next)=>{
   .exec()
   .then(result => {
     if((result.creatorUserId.toString() === req.userData.userId.toString()) || (result.currentContributerUser.toString() === req.userData.userId.toString())){
-      if (req.query.latest){ // filtering out old messages
-        result.messages = result.messages.filter( msg => (msg.date > parseInt(req.query.latest)))
-      }
+      
+      var latest = (req.query.latest) ? ( parseInt(req.query.latest) ) : (0);
+
       res.status(200).json({
         status: "success",
-        message: result.messages
+        message: result.messages.filter( msg => (msg.date > latest) ) // filtering out old messages
       })
     }else{
       res.status(500).json({
