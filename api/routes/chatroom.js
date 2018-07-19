@@ -61,16 +61,10 @@ router.patch("/join/:cid",checkAuth,(req,res,next)=>{
   })
 });
 
-router.get("/:cid",checkAuth,(req,res,next)=>{
-  var query = Chatroom.findOne({_id: req.params.cid});
+router.get("/getmsgs/:cid",checkAuth,(req,res,next)=>{
 
-  if(req.query.onlymsgs){ // if ?onlymsgs is available in the url
-    if(req.query.onlymsgs.toString() === "true"){
-      query.select("_id creatorUserId currentContributerUser messages")
-    }
-  }
-
-  query
+  Chatroom.findOne({_id: req.params.cid})
+  .select("_id creatorUserId currentContributerUser messages")
   .populate("messages.senderId","_id firstName")
   .exec()
   .then(result => {
@@ -78,6 +72,34 @@ router.get("/:cid",checkAuth,(req,res,next)=>{
       if (req.query.latest){ // filtering out old messages
         result.messages = result.messages.filter( msg => (msg.date > parseInt(req.query.latest)))
       }
+      res.status(200).json({
+        status: "success",
+        message: result.messages
+      })
+    }else{
+      res.status(500).json({
+        status: "error",
+        message: "Unauthorized to view"
+      });
+    }
+  })
+  .catch( err => {
+    res.status(500).json({
+      status: "error",
+      message: err
+    });
+  })
+});
+
+router.get("/:cid",checkAuth,(req,res,next)=>{
+  Chatroom.findOne({_id: req.params.cid})
+  .select("_id status creatorUserId subject roleNeeded skillsNeeded currentContributerUser contributorsIds")
+  .populate("creatorUserId","_id firstName lastName email")
+  .populate("currentContributerUser","_id firstName lastName email")
+  .exec()
+  .then(result => {
+    if((result.creatorUserId._id.toString() === req.userData.userId.toString()) || (result.currentContributerUser._id.toString() === req.userData.userId.toString())){
+
       res.status(200).json({
         status: "success",
         message: result
