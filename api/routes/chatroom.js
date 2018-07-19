@@ -70,7 +70,9 @@ router.get("/:cid",checkAuth,(req,res,next)=>{
     }
   }
 
-  query.exec()
+  query
+  .populate("messages.senderId","_id firstName")
+  .exec()
   .then(result => {
     if((result.creatorUserId.toString() === req.userData.userId.toString()) || (result.currentContributerUser.toString() === req.userData.userId.toString())){
       if (req.query.latest){ // filtering out old messages
