@@ -67,15 +67,15 @@ router.get("/:cid",checkAuth,(req,res,next)=>{
   if(req.query.onlymsgs){ // if ?onlymsgs is available in the url
     if(req.query.onlymsgs.toString() === "true"){
       query.select("_id creatorUserId currentContributerUser messages")
-      if (req.query.latest){
-        query.where('messages.date').gt( parseInt(req.query.latest) )
-      }
     }
   }
 
   query.exec()
   .then(result => {
     if((result.creatorUserId.toString() === req.userData.userId.toString()) || (result.currentContributerUser.toString() === req.userData.userId.toString())){
+      if (req.query.latest){ // filtering out old messages
+        result.messages = result.messages.filter( msg => (msg.date > parseInt(req.query.latest)))
+      }
       res.status(200).json({
         status: "success",
         message: result
