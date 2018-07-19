@@ -34,7 +34,7 @@ router.post("/sendmsg/:cid",checkAuth,(req,res,next)=>{
   .catch( err => {
     res.status(500).json({
       status: "error",
-      message: err
+      message: err.toString()
     });
   })
 });
@@ -56,7 +56,57 @@ router.patch("/join/:cid",checkAuth,(req,res,next)=>{
   .catch( err => {
     res.status(500).json({
       status: "error",
-      message: err
+      message: err.toString()
+    });
+  })
+});
+
+router.patch("/end/:cid/:state",checkAuth,(req,res,next)=>{
+  Chatroom.findOne({ _id: req.params.cid, status: "inprogress"})
+  .exec()
+  .then(result=>{
+
+    if (req.params.state.toString().toLowerCase() === "answered") {
+      if (req.userData.userId.toString() !== result.creatorUserId.toString()) {
+        return res.status(500).json({
+          status: "error",
+          message: "Unauthorized to end"
+        });
+      }
+      result.status = "done";
+      result.save()
+      .then(doc=>{
+        res.status(201).json({
+          status: "success",
+          message: "Chatroom closed!"
+        });
+      })
+
+    }else if(req.params.state.toString().toLowerCase() === "notanswered"){
+      if (req.userData.userId.toString() === result.creatorUserId.toString() || req.userData.userId.toString() === result.currentContributerUser.toString()){
+        result.status = "pending";
+        result.currentContributerUser = null;
+        result.save()
+        .then(doc=>{
+          res.status(201).json({
+            status: "success",
+            message: "Chatroom reset to pending!"
+          });
+        })
+      }else {
+        return res.status(500).json({
+          status: "error",
+          message: "Unauthorized to end"
+        });
+      }
+    }
+
+  })
+  .catch( err => {
+    console.log(err);
+    res.status(500).json({
+      status: "error",
+      message: err.toString()
     });
   })
 });
@@ -69,7 +119,7 @@ router.get("/getmsgs/:cid",checkAuth,(req,res,next)=>{
   .exec()
   .then(result => {
     if((result.creatorUserId.toString() === req.userData.userId.toString()) || (result.currentContributerUser.toString() === req.userData.userId.toString())){
-      
+
       var latest = (req.query.latest) ? ( parseInt(req.query.latest) ) : (0);
 
       res.status(200).json({
@@ -86,7 +136,7 @@ router.get("/getmsgs/:cid",checkAuth,(req,res,next)=>{
   .catch( err => {
     res.status(500).json({
       status: "error",
-      message: err
+      message: err.toString()
     });
   })
 });
@@ -114,7 +164,7 @@ router.get("/:cid",checkAuth,(req,res,next)=>{
   .catch( err => {
     res.status(500).json({
       status: "error",
-      message: err
+      message: err.toString()
     });
   })
 });
@@ -139,7 +189,7 @@ router.get("/",checkAuth,(req,res,next)=>{
   .catch( err => {
     res.status(500).json({
       status: "error",
-      message: err
+      message: err.toString()
     });
   })
 });
@@ -164,7 +214,7 @@ router.post("/",checkAuth,(req,res,next)=>{
   .catch(err => {
     res.status(500).json({
       status: "error",
-      message: err
+      message: err.toString()
     });
   })
 });
