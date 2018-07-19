@@ -8,6 +8,37 @@ const Chatroom = require("../models/chatroom");
 const User = require("../models/user");
 
 
+router.post("/sendmsg/:cid",checkAuth,(req,res,next)=>{
+  Chatroom.updateOne(
+    { $or: [
+        { _id: req.params.cid, creatorUserId: req.userData.userId},
+        { _id: req.params.cid, currentContributerUser: req.userData.userId}
+      ]
+    },
+    { $push: {
+         messages: {
+           date: req.body.date,
+           senderId: req.userData.userId,
+           body: req.body.body
+         }
+      }
+    }
+  )
+  .exec()
+  .then(doc => {
+    res.status(200).json({
+      status: "success",
+      message: "Message sent"
+    })
+  })
+  .catch( err => {
+    res.status(500).json({
+      status: "error",
+      message: err
+    });
+  })
+});
+
 router.patch("/join/:cid",checkAuth,(req,res,next)=>{
   Chatroom.updateOne(
     { _id: req.params.cid, status: "pending"},
