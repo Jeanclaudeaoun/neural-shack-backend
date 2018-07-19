@@ -8,6 +8,28 @@ const Chatroom = require("../models/chatroom");
 const User = require("../models/user");
 
 
+router.patch("/join/:cid",checkAuth,(req,res,next)=>{
+  Chatroom.updateOne(
+    { _id: req.params.cid, status: "pending"},
+    {
+      $set: {status: "inprogress", currentContributerUser: req.userData.userId},
+      $push: { contributorsIds: req.userData.userId}
+    })
+  .exec()
+  .then(doc => {
+    res.status(200).json({
+      status: "success",
+      message: "Chatroom successfully joined!"
+    })
+  })
+  .catch( err => {
+    res.status(500).json({
+      status: "error",
+      message: err
+    });
+  })
+});
+
 router.get("/:cid",checkAuth,(req,res,next)=>{
   var query = Chatroom.findOne({_id: req.params.cid});
 
@@ -15,7 +37,7 @@ router.get("/:cid",checkAuth,(req,res,next)=>{
     if(req.query.onlymsgs.toString() === "true"){
       query.select("_id creatorUserId currentContributerUser messages")
       if (req.query.latest){
-        query.where('messages.date').gt( parseInt(req.query.latest) ) 
+        query.where('messages.date').gt( parseInt(req.query.latest) )
       }
     }
   }
